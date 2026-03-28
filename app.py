@@ -2,25 +2,28 @@ import streamlit as st
 import PyPDF2
 import pandas as pd
 import requests
-APP_ID = st.secrets["af561ba6"]
-APP_KEY = st.secrets["9499bc677cd60eb3d0644ebaa115e9ad"]
-import streamlit as st
-import PyPDF2
-import pandas as pd
-import requests
+
 
 # ================= API CONFIG =================
-APP_ID = "your_app_id"
-APP_KEY = "your_app_key"
+APP_ID = st.secrets["APP_ID"]
+APP_KEY = st.secrets["APP_KEY"]
 
 
 # ================= JOB FETCH FUNCTION =================
 def fetch_jobs(role):
+
     try:
-        url = f"https://api.adzuna.com/v1/api/jobs/in/search/1?app_id={APP_ID}&app_key={APP_KEY}&what={role}&results_per_page=10"
+
+        search_role = role + " developer"
+
+        url = f"https://api.adzuna.com/v1/api/jobs/in/search/1?app_id={APP_ID}&app_key={APP_KEY}&what={search_role}&results_per_page=10"
+
         response = requests.get(url)
+
         return response.json()
+
     except:
+
         return {}
 
 
@@ -36,6 +39,7 @@ uploaded_file = st.file_uploader(
 
 # ================= SKILLS DATABASE =================
 skills_db = [
+
     "python","java","c","c++","sql","machine learning","data science",
     "html","css","javascript","react","node.js",
     "excel","power bi","communication","teamwork",
@@ -44,28 +48,33 @@ skills_db = [
     "photoshop","illustrator","autocad",
     "tally","accounting","marketing","sales",
     "cybersecurity","networking"
+
 ]
 
 
 # ================= JOB ROLE MATCHING =================
 job_roles = {
+
     "Data Scientist": ["python","machine learning","data science","sql"],
     "Web Developer": ["html","css","javascript","react"],
     "Software Engineer": ["java","c++","python","sql"]
+
 }
 
 
 # ================= MAIN EXECUTION BLOCK =================
 if uploaded_file is not None:
 
-    # -------- PDF TEXT EXTRACTION --------
     pdf_reader = PyPDF2.PdfReader(uploaded_file)
 
     text = ""
 
     for page in pdf_reader.pages:
+
         if page.extract_text():
+
             text += page.extract_text()
+
 
     st.subheader("Extracted Resume Text:")
     st.write(text)
@@ -73,18 +82,26 @@ if uploaded_file is not None:
 
     # -------- SKILL DETECTION --------
     detected_skills = []
+
     text_lower = text.lower()
 
     for skill in skills_db:
+
         if skill in text_lower:
+
             detected_skills.append(skill)
+
 
     st.subheader("Detected Skills:")
 
     if detected_skills:
+
         for skill in detected_skills:
+
             st.success(skill)
+
     else:
+
         st.warning("No skills detected")
 
 
@@ -92,24 +109,31 @@ if uploaded_file is not None:
     career_field = "General"
 
     if any(skill in detected_skills for skill in ["python","machine learning","data science"]):
+
         career_field = "Data Science"
 
     elif any(skill in detected_skills for skill in ["java","c++","c","sql"]):
+
         career_field = "Software Engineering"
 
     elif any(skill in detected_skills for skill in ["html","css","javascript","react"]):
+
         career_field = "Web Development"
 
     elif "autocad" in detected_skills:
+
         career_field = "Mechanical Engineering"
 
     elif any(skill in detected_skills for skill in ["tally","accounting"]):
+
         career_field = "Accounting"
 
     elif any(skill in detected_skills for skill in ["photoshop","illustrator"]):
+
         career_field = "Graphic Design"
 
     elif any(skill in detected_skills for skill in ["marketing","sales"]):
+
         career_field = "Business & Marketing"
 
 
@@ -122,65 +146,93 @@ if uploaded_file is not None:
 
     job_data = fetch_jobs(career_field)
 
+
     if "results" in job_data and len(job_data["results"]) > 0:
 
         for job in job_data["results"]:
 
             st.markdown(f"### {job['title']}")
+
             st.write("Company:", job["company"]["display_name"])
+
             st.write("Location:", job["location"]["display_name"])
+
             st.write("Apply here:", job["redirect_url"])
 
+
     else:
+
         st.warning("No jobs found from API")
 
 
     # -------- INTERVIEW QUESTIONS --------
     st.subheader("AI Interview Practice Questions")
 
+
     interview_questions = {
 
         "Data Science": [
+
             "Explain supervised vs unsupervised learning",
+
             "What is overfitting?",
+
             "Explain regression models"
+
         ],
 
         "Web Development": [
+
             "Difference between HTML and HTML5",
+
             "Explain CSS Flexbox",
+
             "What is React?"
+
         ],
 
         "Software Engineering": [
+
             "Explain OOP concepts",
+
             "Difference between list and tuple",
+
             "What is API?"
+
         ]
+
     }
+
 
     if career_field in interview_questions:
 
         for question in interview_questions[career_field]:
+
             st.write("•", question)
 
 
     # -------- RESUME SCORE --------
     score = min(len(detected_skills) * 5, 100)
 
+
     st.subheader("Resume Score:")
+
     st.progress(score)
+
     st.write(score, "/ 100")
 
 
     # -------- CAREER READINESS --------
     if score >= 80:
+
         st.success("Career Readiness Level: HIGH")
 
     elif score >= 50:
+
         st.warning("Career Readiness Level: MEDIUM")
 
     else:
+
         st.error("Career Readiness Level: LOW – Improve skills using suggested courses")
 
 
@@ -189,43 +241,63 @@ if uploaded_file is not None:
 
         st.subheader("Recommended Courses")
 
+
         course_suggestions = {
 
             "python": "Python Programming – Coursera",
+
             "machine learning": "Machine Learning – Andrew Ng",
+
             "sql": "SQL for Data Analysis – Coursera",
+
             "html": "Frontend Development – Udemy",
+
             "javascript": "JavaScript Bootcamp – Udemy",
+
             "communication": "Professional Communication Skills"
+
         }
+
 
         for skill in course_suggestions:
 
             if skill not in detected_skills:
+
                 st.write("•", course_suggestions[skill])
 
 
     # -------- JOB ROLE MATCHING --------
     st.subheader("Job Role Matching")
 
+
     selected_role = st.selectbox(
+
         "Select a Job Role",
+
         list(job_roles.keys())
+
     )
+
 
     required_skills = job_roles[selected_role]
 
+
     matched = []
+
 
     for skill in required_skills:
 
         if skill in text_lower:
+
             matched.append(1)
+
         else:
+
             matched.append(0)
 
 
     match_score = int((sum(matched) / len(required_skills)) * 100)
+
 
     st.write("Match Score:", match_score, "%")
 
@@ -233,10 +305,14 @@ if uploaded_file is not None:
     # -------- GRAPH VISUALIZATION --------
     st.subheader("Skill Match Visualization")
 
+
     skill_chart = pd.DataFrame({
+
         "Skills": required_skills,
+
         "Match": matched
+
     })
 
+
     st.bar_chart(skill_chart.set_index("Skills"))
-    
