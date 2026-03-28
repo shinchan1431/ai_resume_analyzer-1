@@ -3,8 +3,6 @@ import PyPDF2
 import pandas as pd
 import requests
 
-
-# ================= API CONFIG =================
 APP_ID = st.secrets["APP_ID"]
 APP_KEY = st.secrets["APP_KEY"]
 
