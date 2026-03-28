@@ -2,8 +2,8 @@ import streamlit as st
 import PyPDF2
 import pandas as pd
 import requests
-APP_ID = "af561ba6"
-APP_KEY = "9499bc677cd60eb3d0644ebaa115e9ad"
+APP_ID = st.secrets["af561ba6"]
+APP_KEY = st.secrets["9499bc677cd60eb3d0644ebaa115e9ad"]
 import streamlit as st
 import PyPDF2
 import pandas as pd
